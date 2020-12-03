@@ -1,4 +1,4 @@
-expenses = [int(line.strip()) for line in open("1_input.txt", "r").readlines()]
+expenses = [int(line.strip()) for line in open("2020/01_input.txt", "r").readlines()]
 
 
 for i in range(len(expenses)):

@@ -1,4 +1,4 @@
-lines = [line.strip().split(" ") for line in open("2_input.txt", "r").readlines()]
+lines = [line.strip().split(" ") for line in open("2020/02_input.txt", "r").readlines()]
 
 cnt = 0
 
