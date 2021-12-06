@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Literal, Tuple, Union
 
 
@@ -85,8 +86,8 @@ def aoc_04(f: str) -> tuple[int, int]:
     with open(f) as of:
         order = [int(n) for n in of.readline().strip().split(",")]
 
-        boards = [[[int(n), False] for n in l.strip().split(" ") if n != ""] for l in of.readlines() if l != "\n"]
-        boards = [boards[i : i + 5] for i in range(0, len(boards), 5)]
+        boards_int = [[[int(n), False] for n in l.strip().split(" ") if n != ""] for l in of.readlines() if l != "\n"]
+        boards = [boards_int[i : i + 5] for i in range(0, len(boards_int), 5)]
 
     def a(order: list[int], boards: list[list[list[list[Union[int, bool]]]]]) -> int:
         for o in order:
@@ -96,17 +97,18 @@ def aoc_04(f: str) -> tuple[int, int]:
                 for line, col in zip(board, board_t):
                     if all([n[1] for n in line]) or all([n[1] for n in col]):
                         return o * sum([n[0] for line in board for n in line if not n[1]])
+        return 0
 
-    def b(order: list[int], boards: list[list[list[Tuple[int, bool]]]]) -> int:
+    def b(order: list[int], boards: list[list[list[list[Union[int, bool]]]]]) -> int:
         boardswon = set()
-        win = None
+        win = 0
 
         for o in order:
             [n.__setitem__(1, True) for board in boards for line in board for n in line if o == n[0]]
 
             i = 0
-            for board, boardT in zip(boards, [list(map(list, zip(*board))) for board in boards]):
-                for line, col in zip(board, boardT):
+            for board, board_t in zip(boards, [list(map(list, zip(*board))) for board in boards]):
+                for line, col in zip(board, board_t):
                     if all([n[1] for n in line]) or all([n[1] for n in col]):
                         win = o * sum([n[0] for line in board for n in line if not n[1]])
                         boardswon.add(i)
@@ -131,37 +133,32 @@ def aoc_05(f: str) -> tuple[int, int]:
     ]
 
     def a(lines: list[tuple[tuple[int, int], tuple[int, int]]]) -> int:
-        xmax = max(max(l[0][0], l[1][0]) for l in lines) + 1
-        ymax = max(max(l[0][1], l[1][1]) for l in lines) + 1
-
-        plane = [[0 for _ in range(xmax)] for _ in range(ymax)]
+        plane = defaultdict[tuple[int, int], int](int)
 
         for line in lines:
             (x1, y1), (x2, y2) = line
 
             if x1 == x2:
                 for y in range(min(y1, y2), max(y1, y2) + 1):
-                    plane[y][x1] += 1
+                    plane[(y, x1)] += 1
             elif y1 == y2:
                 for x in range(min(x1, x2), max(x1, x2) + 1):
-                    plane[y1][x] += 1
+                    plane[(y1, x)] += 1
 
-        return sum(1 for line in plane for n in line if n > 1)
+        return sum(1 for n in plane.values() if n > 1)
 
     def b(lines: list[tuple[tuple[int, int], tuple[int, int]]]) -> int:
-        xmax = max(max(l[0][0], l[1][0]) for l in lines) + 1
-        ymax = max(max(l[0][1], l[1][1]) for l in lines) + 1
+        plane = defaultdict[tuple[int, int], int](int)
 
-        plane = [[0 for _ in range(xmax)] for _ in range(ymax)]
         for line in lines:
             (x1, y1), (x2, y2) = line
 
             if x1 == x2:
                 for y in range(min(y1, y2), max(y1, y2) + 1):
-                    plane[y][x1] += 1
+                    plane[(y, x1)] += 1
             elif y1 == y2:
                 for x in range(min(x1, x2), max(x1, x2) + 1):
-                    plane[y1][x] += 1
+                    plane[(y1, x)] += 1
             else:
                 if x1 > x2:
                     x1, x2, y1, y2 = x2, x1, y2, y1
@@ -170,9 +167,9 @@ def aoc_05(f: str) -> tuple[int, int]:
                         y = y1 + (x - x1)
                     else:
                         y = y1 - (x - x1)
-                    plane[y][x] += 1
+                    plane[(y, x)] += 1
 
-        return sum(1 for line in plane for n in line if n > 1)
+        return sum(1 for n in plane.values() if n > 1)
 
     return a(lines), b(lines)
 
