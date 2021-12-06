@@ -1,4 +1,5 @@
 from collections import defaultdict
+import math
 from typing import Literal, Tuple, Union
 
 
@@ -135,9 +136,7 @@ def aoc_05(f: str) -> tuple[int, int]:
     def a(lines: list[tuple[tuple[int, int], tuple[int, int]]]) -> int:
         plane = defaultdict[tuple[int, int], int](int)
 
-        for line in lines:
-            (x1, y1), (x2, y2) = line
-
+        for (x1, y1), (x2, y2) in lines:
             if x1 == x2:
                 for y in range(min(y1, y2), max(y1, y2) + 1):
                     plane[(y, x1)] += 1
@@ -150,9 +149,7 @@ def aoc_05(f: str) -> tuple[int, int]:
     def b(lines: list[tuple[tuple[int, int], tuple[int, int]]]) -> int:
         plane = defaultdict[tuple[int, int], int](int)
 
-        for line in lines:
-            (x1, y1), (x2, y2) = line
-
+        for (x1, y1), (x2, y2) in lines:
             if x1 == x2:
                 for y in range(min(y1, y2), max(y1, y2) + 1):
                     plane[(y, x1)] += 1
@@ -174,5 +171,27 @@ def aoc_05(f: str) -> tuple[int, int]:
     return a(lines), b(lines)
 
 
-assert aoc_05("2021/05_sample.txt") == (5, 12)
-assert aoc_05("2021/05_input.txt") == (6564, 19172)
+# assert aoc_05("2021/05_sample.txt") == (5, 12)
+# assert aoc_05("2021/05_input.txt") == (6564, 19172)
+
+
+def aoc_06(f: str) -> tuple[int, int]:
+    ages = list(map(int, open(f).read().split(",")))
+
+    def solve(ages: list[int], days: int):
+        counts = [0] * 9
+        for x in ages:
+            counts[x] += 1
+
+        for _ in range(days):
+            new_count = counts.pop(0)
+            counts[6] += new_count
+            counts.append(new_count)
+
+        return sum(counts)
+
+    return solve(ages, 80), solve(ages, 256)
+
+
+assert aoc_06("2021/06_sample.txt") == (5934, 26984457539)
+assert aoc_06("2021/06_input.txt") == (386640, 1733403626279)
