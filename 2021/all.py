@@ -1,8 +1,3 @@
-from collections import defaultdict
-import math
-from typing import Literal, Tuple, Union
-
-
 def aoc_01(f: str) -> tuple[int, int]:
     m = [int(line.strip()) for line in open(f).readlines()]
 
@@ -54,6 +49,8 @@ def aoc_02(f: str) -> tuple[int, int]:
 
 
 def aoc_03(f: str) -> tuple[int, int]:
+    from typing import Literal
+
     bits = [line.strip() for line in open(f).readlines()]
 
     def _most_common(bits: list[str], i) -> Literal["1", "0"]:
@@ -84,6 +81,8 @@ def aoc_03(f: str) -> tuple[int, int]:
 
 
 def aoc_04(f: str) -> tuple[int, int]:
+    from typing import Union
+
     with open(f) as of:
         order = [int(n) for n in of.readline().strip().split(",")]
 
@@ -128,6 +127,8 @@ def aoc_04(f: str) -> tuple[int, int]:
 
 
 def aoc_05(f: str) -> tuple[int, int]:
+    from collections import defaultdict
+
     lines = [
         ((int(x1), int(y1)), (int(x2), int(y2)))
         for x1, y1, x2, y2 in [line.strip().replace(" -> ", ",").split(",") for line in open(f).readlines()]
@@ -193,5 +194,29 @@ def aoc_06(f: str) -> tuple[int, int]:
     return solve(ages, 80), solve(ages, 256)
 
 
-assert aoc_06("2021/06_sample.txt") == (5934, 26984457539)
-assert aoc_06("2021/06_input.txt") == (386640, 1733403626279)
+# assert aoc_06("2021/06_sample.txt") == (5934, 26984457539)
+# assert aoc_06("2021/06_input.txt") == (386640, 1733403626279)
+
+
+def aoc_07(f: str) -> tuple[int, int]:
+    from statistics import mean, median
+
+    positions = list(map(int, open(f).read().split(",")))
+
+    def a(positions: list[int]) -> int:
+        m = median(positions)
+        return sum([abs(p - m) for p in positions])
+
+    def b(positions: list[int]) -> int:
+        m = mean(positions)
+        m1, m2 = round(m - 0.5), round(m + 0.5)
+        return min(
+            sum([int(0.5 * abs(p - m1) * (abs(p - m1) + 1)) for p in positions]),
+            sum([int(0.5 * abs(p - m2) * (abs(p - m2) + 1)) for p in positions]),
+        )
+
+    return a(positions), b(positions)
+
+
+assert aoc_07("2021/07_sample.txt") == (37, 168)
+assert aoc_07("2021/07_input.txt") == (352997, 101571302)
