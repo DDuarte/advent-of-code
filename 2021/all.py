@@ -293,5 +293,68 @@ def aoc_08(f: str) -> tuple[int, int]:
     return a(entries), b(entries)
 
 
-assert aoc_08("2021/08_sample.txt") == (26, 61229)
-assert aoc_08("2021/08_input.txt") == (525, 1083859)
+# assert aoc_08("2021/08_sample.txt") == (26, 61229)
+# assert aoc_08("2021/08_input.txt") == (525, 1083859)
+
+
+def aoc_09(f: str) -> tuple[int, int]:
+    from typing import Tuple
+
+    heightmap = [list(map(int, line.strip())) for line in open(f).readlines()]
+
+    def a(heightmap: list[list[int]]) -> int:
+        return sum(
+            heightmap[y][x] + 1
+            for y in range(len(heightmap))
+            for x in range(len(heightmap[y]))
+            if heightmap[y][x]
+            < min(
+                a
+                for a in [
+                    heightmap[y][x - 1] if x > 0 else None,
+                    heightmap[y][x + 1] if x < len(heightmap[y]) - 1 else None,
+                    heightmap[y - 1][x] if y > 0 else None,
+                    heightmap[y + 1][x] if y < len(heightmap) - 1 else None,
+                ]
+                if a is not None
+            )
+        )
+
+    def b(heightmap: list[list[int]]) -> int:
+        def visit(y: int, x: int) -> set[Tuple[int, int]]:
+            basin = set[Tuple[int, int]]()
+
+            q = [(y, x)]
+            while q:
+                i, j = q.pop()
+                if heightmap[i][j] == 9:
+                    continue
+
+                basin.add((i, j))
+
+                q.extend(
+                    [
+                        l
+                        for l in [(i - 1, j), (i + 1, j), (i, j - 1), (i, j + 1)]
+                        if 0 <= l[0] < len(heightmap) and 0 <= l[1] < len(heightmap[i]) and l not in basin
+                    ]
+                )
+
+            return basin
+
+        basin_sizes = list[int]()
+        visited = set[Tuple[int, int]]()
+        for y in range(len(heightmap)):
+            for x in range(len(heightmap[y])):
+                if (y, x) not in visited and (basin := visit(y, x)):
+                    basin_sizes.append(len(basin))
+                    visited.update(basin)
+
+        *_, b1, b2, b3 = sorted(basin_sizes)
+        return b1 * b2 * b3
+
+    return a(heightmap), b(heightmap)
+
+
+assert aoc_09("2021/09_sample.txt") == (15, 1134)
+assert aoc_09("2021/09_input.txt") == (603, 786780)
