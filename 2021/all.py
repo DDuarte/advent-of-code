@@ -218,5 +218,80 @@ def aoc_07(f: str) -> tuple[int, int]:
     return a(positions), b(positions)
 
 
-assert aoc_07("2021/07_sample.txt") == (37, 168)
-assert aoc_07("2021/07_input.txt") == (352997, 101571302)
+# assert aoc_07("2021/07_sample.txt") == (37, 168)
+# assert aoc_07("2021/07_input.txt") == (352997, 101571302)
+
+
+def aoc_08(f: str) -> tuple[int, int]:
+    entries = [
+        ([set(x) for x in a.strip().split(" ")], b.strip().split(" "))
+        for a, b in [line.strip().split("|") for line in open(f).readlines()]
+    ]
+
+    def a(entries: list[tuple[list[set[str]], list[str]]]):
+        return sum(sum(len(digit) in [2, 3, 4, 7] for digit in output) for _, output in entries)
+
+    def b(entries: list[tuple[list[set[str]], list[str]]]):
+        r = 0
+        values = {
+            "abcefg": "0",
+            "cf": "1",
+            "acdeg": "2",
+            "acdfg": "3",
+            "bcdf": "4",
+            "abdfg": "5",
+            "abdefg": "6",
+            "acf": "7",
+            "abcdefg": "8",
+            "abcdfg": "9",
+        }
+
+        for patterns, outputs in entries:
+            mapping = {
+                "a": set(["a", "b", "c", "d", "e", "f", "g"]),
+                "b": set(["a", "b", "c", "d", "e", "f", "g"]),
+                "c": set(["a", "b", "c", "d", "e", "f", "g"]),
+                "d": set(["a", "b", "c", "d", "e", "f", "g"]),
+                "e": set(["a", "b", "c", "d", "e", "f", "g"]),
+                "f": set(["a", "b", "c", "d", "e", "f", "g"]),
+                "g": set(["a", "b", "c", "d", "e", "f", "g"]),
+            }
+
+            for pattern in patterns:
+                if len(pattern) == 2:  # 1
+                    for x in ["c", "f"]:
+                        mapping[x] &= pattern
+                    for x in ["a", "b", "d", "e", "g"]:
+                        mapping[x] -= pattern
+                elif len(pattern) == 3:  # 7
+                    for x in ["a", "c", "f"]:
+                        mapping[x] &= pattern
+                    for x in ["b", "d", "e", "g"]:
+                        mapping[x] -= pattern
+                elif len(pattern) == 4:  # 4
+                    for x in ["b", "c", "d", "f"]:
+                        mapping[x] &= pattern
+                    for x in ["a", "e", "g"]:
+                        mapping[x] -= pattern
+                elif len(pattern) == 5:  # 2, 3, 5
+                    for x in ["a", "d", "g"]:
+                        mapping[x] &= pattern
+                elif len(pattern) == 6:  # 0, 6, 9
+                    for x in ["a", "b", "f", "g"]:
+                        mapping[x] &= pattern
+
+            for l, p in mapping.items():
+                if len(p) >= 2:
+                    p.difference_update(*[v for k, v in mapping.items() if k != l])
+
+            new_mapping = {"".join(sorted(next(iter(mapping[x])) for x in k)): v for k, v in values.items()}
+
+            r += int("".join(map(lambda x: new_mapping["".join(sorted(x))], outputs)))
+
+        return r
+
+    return a(entries), b(entries)
+
+
+assert aoc_08("2021/08_sample.txt") == (26, 61229)
+assert aoc_08("2021/08_input.txt") == (525, 1083859)
