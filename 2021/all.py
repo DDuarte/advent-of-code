@@ -204,7 +204,7 @@ def aoc_07(f: str) -> tuple[int, int]:
     positions = list(map(int, open(f).read().split(",")))
 
     def a(positions: list[int]) -> int:
-        m = median(positions)
+        m = int(median(positions))
         return sum([abs(p - m) for p in positions])
 
     def b(positions: list[int]) -> int:
@@ -232,8 +232,7 @@ def aoc_08(f: str) -> tuple[int, int]:
         return sum(sum(len(digit) in [2, 3, 4, 7] for digit in output) for _, output in entries)
 
     def b(entries: list[tuple[list[set[str]], list[str]]]):
-        r = 0
-        values = {
+        VALUES = {
             "abcefg": "0",
             "cf": "1",
             "acdeg": "2",
@@ -246,6 +245,7 @@ def aoc_08(f: str) -> tuple[int, int]:
             "abcdfg": "9",
         }
 
+        r = 0
         for patterns, outputs in entries:
             mapping = {
                 "a": set(["a", "b", "c", "d", "e", "f", "g"]),
@@ -284,7 +284,7 @@ def aoc_08(f: str) -> tuple[int, int]:
                 if len(p) >= 2:
                     p.difference_update(*[v for k, v in mapping.items() if k != l])
 
-            new_mapping = {"".join(sorted(next(iter(mapping[x])) for x in k)): v for k, v in values.items()}
+            new_mapping = {"".join(sorted(next(iter(mapping[x])) for x in k)): v for k, v in VALUES.items()}
 
             r += int("".join(map(lambda x: new_mapping["".join(sorted(x))], outputs)))
 
@@ -356,5 +356,32 @@ def aoc_09(f: str) -> tuple[int, int]:
     return a(heightmap), b(heightmap)
 
 
-assert aoc_09("2021/09_sample.txt") == (15, 1134)
-assert aoc_09("2021/09_input.txt") == (603, 786780)
+# assert aoc_09("2021/09_sample.txt") == (15, 1134)
+# assert aoc_09("2021/09_input.txt") == (603, 786780)
+
+
+def aoc_10(f: str) -> tuple[int, int]:
+    from functools import reduce
+
+    lines = [line.strip() for line in open(f).readlines()]
+
+    OPEN, CLOSE, SCORE, FIX_SCORE = "([{<", ")]}>", [3, 57, 1197, 25137], [1, 2, 3, 4]
+
+    score_a = 0
+    scores_b = []
+    for line in lines:
+        stack = []
+        for c in line:
+            if c in OPEN:
+                stack.append(c)
+            elif stack.pop() != OPEN[CLOSE.index(c)]:
+                score_a += SCORE[CLOSE.index(c)]
+                break
+        else:
+            scores_b.append(reduce(lambda a, b: a * 5 + FIX_SCORE[OPEN.index(b)], reversed(stack), 0))
+
+    return score_a, sorted(scores_b)[len(scores_b) // 2]
+
+
+assert aoc_10("2021/10_sample.txt") == (26397, 288957)
+assert aoc_10("2021/10_input.txt") == (343863, 2924734236)
