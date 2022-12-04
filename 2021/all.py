@@ -365,7 +365,7 @@ def aoc_10(f: str) -> tuple[int, int]:
 
     lines = [line.strip() for line in open(f).readlines()]
 
-    OPEN, CLOSE, SCORE, FIX_SCORE = "([{<", ")]}>", [3, 57, 1197, 25137], [1, 2, 3, 4]
+    OPEN, CLOSE, SCORE = "([{<", ")]}>", [3, 57, 1197, 25137]
 
     score_a = 0
     scores_b = []
@@ -378,7 +378,7 @@ def aoc_10(f: str) -> tuple[int, int]:
                 score_a += SCORE[CLOSE.index(c)]
                 break
         else:
-            scores_b.append(reduce(lambda a, b: a * 5 + FIX_SCORE[OPEN.index(b)], reversed(stack), 0))
+            scores_b.append(reduce(lambda a, b: a * 5 + OPEN.index(b) + 1, reversed(stack), 0))
 
     return score_a, sorted(scores_b)[len(scores_b) // 2]
 
